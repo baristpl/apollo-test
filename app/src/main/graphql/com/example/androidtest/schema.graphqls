@@ -1,0 +1,782 @@
+directive @isAuthenticated on FIELD_DEFINITION
+
+directive @adminOnly on FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+directive @onlyAdminOrI on FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+directive @translatableField on FIELD_DEFINITION
+
+directive @isPremiumUniversityAdmin on FIELD_DEFINITION
+
+directive @isSuperUser on FIELD_DEFINITION
+
+# The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+scalar JSON
+
+type Query {
+  _: String!
+  overviewData(filter: OverviewDataFilter): OverviewData!
+  overviewImpressions(filter: OverviewDataFilter): OverviewImpressions!
+  getAnalyticsData(filter: OverviewDataFilter): AnalyticsData!
+  topUsersByConvCount(count: Int, userRole: UserRole, byUniversity: ID): [User]!
+  checkToken: User
+  hasUserAddedPassword(userId: ID!): UserAddedPassword
+  blogList(filter: BlogFilter, pagination: BlogPagination): PaginatedBlog
+  blogDetail(id: String!): Blog!
+  countryList(
+    filter: CountryFilter
+    countryOrLanguage: CountryOrLanguage
+  ): [Country!]
+  getNotificationLogs(filter: NotificationFilter): [NotificationLog]
+  getUnreadNotificationCount: Int
+  universityList(
+    filter: UniversityFilter
+    pagination: UniversityListPagination
+  ): PaginatedUniversity
+  getUniversity(id: ID): University
+  allMessages: [Message!]
+  allConversations(filter: ConversationFilter): PaginatedConversation
+  conversationCountsByRole(filter: ConversationFilter): [Int]
+  allDeletedConversations(filter: ConversationFilter): [Conversation]
+  getConversationLastMessage(conversationId: ID!): Message
+  getConversation(id: ID, userId: ID): Conversation
+  unAnsweredMessages(userId: ID, createdAtGte: String): [Message!]
+  myProfile: User!
+  userList(
+    filter: UserFilter
+    pagination: ListPagination
+    byUniversity: ID
+  ): PaginatedUser
+  getUser(id: ID!): User
+  staffRoleList(filter: StaffRoleFilter): [StaffRole!]
+  adminStaffList(
+    filter: StaffListFilter
+    pagination: ListPagination
+    byUniversity: ID
+  ): PaginatedUser
+  adminStudentList(
+    filter: StudentListFilter
+    pagination: ListPagination
+    byUniversity: ID
+  ): PaginatedUser
+  adminCandidateList(
+    filter: CandidateListFilter
+    pagination: ListPagination
+    byUniversity: ID
+  ): PaginatedUser
+  adminManagerList(
+    filter: ManagerListFilter
+    pagination: ListPagination
+    byUniversity: ID
+  ): PaginatedUser
+  areaOfStudyList(
+    filter: AreaOfStudyFilter
+    pagination: AreaOfStudyListPagination
+  ): PaginatedAreaOfStudy
+  getAreaOfStudyEditObject(id: ID!): AreaOfStudyEditObject
+  universityUserBadges(universityId: ID): [UserBadge]
+  clientDecideDefaultRouteByBadge(
+    universityId: ID!
+    badgeId: ID
+  ): StaffOrStudent
+  eventList(
+    byUniversity: ID
+    filter: EventFilter
+    pagination: ListPagination
+  ): PaginatedEvent
+  eventDetail(id: ID!): Event
+  adminReportedCandidateList(
+    filter: ManagerListFilter
+    pagination: ListPagination
+    byUniversity: ID
+  ): PaginatedUser
+  getCandidateReports(userId: ID!): [UserReport]
+}
+
+type Mutation {
+  _: String!
+  deleteEntities(ids: [String!], modelName: String!): Boolean
+  register(
+    email: String!
+    password: String!
+    firstName: String!
+    lastName: String!
+    privacyAgreements: InputUserPrivacyAgreements
+    phoneNumber: String
+    universityId: String
+    agoraId: String
+    fcmId: String
+    userRole: RegisterUserRole
+  ): LoginResponse
+  authenticate(
+    email: String!
+    password: String!
+    agoraId: String
+    fcmId: String
+  ): LoginResponse
+  ikuMetaverseLogin(
+    email: String!
+    firstName: String!
+    lastName: String!
+    uniId: ID!
+  ): LoginResponse
+  altIkuMetaverseLogin(uniId: ID!): LoginResponse
+  changePassword(
+    oldPassword: String!
+    newPassword1: String!
+    newPassword2: String!
+  ): Boolean!
+  checkForgotPasswordCode(email: String!, code: String!): Boolean!
+  startForgotPassword(email: String!): Boolean!
+  forgotPassword(code: String!, newPassword: String!): Boolean!
+  dashboardStartForgotPassword(email: String!): Boolean!
+  dashboardForgotPassword(userId: ID!, newPassword: String!): Boolean!
+  getAgoraToken(channelName: String!): String
+  addAreaOfStudies(ids: [ID]!): [AreaOfStudy]
+  addInterestedUniversity(universityId: ID!): User
+  adminAddManyNewPersonnel(
+    newPersonnelArray: [NewPersonnelInput]!
+    universityId: ID
+    badgeId: ID
+  ): [User]
+  newPersonnelAddPassword(userId: ID!, password: String!): LoginResponse
+  adminDeleteUser(id: ID!): User
+  superUserSwitchElevatedAdmin(id: ID!, isElevatedAdmin: Boolean!): User
+  setUniversityIntegrationWebsite(universityId: ID!, website: String!): Boolean
+  blogCreate(
+    title: String!
+    content: String!
+    owner: ID!
+    byUniversity: ID
+    image: String
+  ): Blog!
+  blogEdit(id: String!, title: String!, content: String!, image: String): Blog!
+  blogDelete(id: String!): Boolean!
+  countryCreate(name: TranslatableInput!): Boolean!
+  countryEdit(id: String!, name: TranslatableInput!): Boolean!
+  countryDelete(id: String!): Boolean!
+  createUniversity(
+    name: String!
+    agreementUrls: InputUniAgreementUrls!
+    primaryColor: String
+    secondaryColor: String
+    logo: String
+  ): University
+  updateUniversity(
+    id: ID!
+    name: String
+    agreementUrls: InputUniAgreementUrls
+    primaryColor: String
+    secondaryColor: String
+    logo: String
+  ): University
+  deleteUniversity(id: ID!): University
+  changeUniversityDisplayMode(
+    id: ID!
+    displayMode: UniversityDisplayMode!
+  ): University
+  changeUniversityWebRTCType(id: ID!, webRTCType: WebRTCType!): University
+  toggleUniversityP2PSwitch(id: ID!, status: Boolean!): University
+  createConversation(userIds: [ID!]): Conversation
+  updateConversation(id: ID, userIds: [ID!]): Conversation
+  createMessage(
+    conversationId: ID!
+    message: String!
+    type: Message_Type
+  ): Message
+  updateMessage(id: ID!, message: String): Message
+  readMessages(conversationId: ID!): Boolean
+  setOnlineStatus(status: Boolean!): User
+  createLiveStreamMessage(conversationId: ID!, message: String!): Message
+  toggleUserP2PSwitch(userId: ID!, status: Boolean!): User
+  editProfile(
+    fcmId: String
+    firstName: String
+    lastName: String
+    areaOfStudyIds: [ID]
+    about: String
+    countryId: ID
+    phoneNumber: String
+    speakingLanguagesCountryIds: [ID]
+    currentYear: String
+    studentLevel: STUDENT_LEVEL
+    schoolName: String
+    agoraId: String
+    profilePhoto: String
+    staffRoleId: ID
+    newStaffRoleName: String
+  ): User!
+  updateUser(
+    id: ID!
+    userRole: UserRole
+    firstName: String
+    lastName: String
+    areaOfStudyIds: [ID]
+    about: String
+    countryId: ID
+    speakingLanguagesCountryIds: [ID]
+    currentYear: String
+    studentLevel: STUDENT_LEVEL
+    schoolName: String
+    isVerified: Boolean
+    profilePhoto: String
+    staffRoleId: ID
+    newStaffRoleName: String
+  ): User
+  addNewStaffRole(universityId: ID, name: String!): StaffRole!
+  banUser(id: ID!): User
+  adminSetUserApprovalStatus(id: ID!, status: ApprovalStatus!): User
+  adminSetUserPlace(id: ID!, place: Int): User
+  adminSetUserPlaces(objects: [UserPlaceObject]!): [User]
+  createAreaOfStudy(name: TranslatableInput!): Boolean
+  editAreaOfStudy(id: ID, name: TranslatableInput): Boolean
+  deleteAreaOfStudy(id: ID): AreaOfStudy
+  createUserBadge(name: String!, universityId: ID): UserBadge
+  editUserBadge(id: ID!, name: String!): UserBadge
+  deleteUserBadge(id: ID!): UserBadge
+  assignBadgesToUser(userId: ID!, badgeIds: [ID!]!): User
+  setUniversityPaymentPlan(
+    universityId: ID!
+    plan: UniversityPaymentPlan!
+  ): University
+  createEvent(
+    name: String!
+    hostId: ID!
+    startDate: String!
+    universityId: ID
+    endDate: String
+    description: String
+    image: String
+  ): Event
+  editEvent(
+    id: ID!
+    name: String
+    hostId: ID
+    startDate: String
+    endDate: String
+    description: String
+    image: String
+    status: EventStatus
+  ): Event
+  changeEventAttendance(id: ID!, isAttending: Boolean): Event
+  startEvent(id: ID!): Event
+  endEvent(id: ID!): Event
+  reportCandidate(id: ID!, reportMessage: String): User
+  removeReport(reportId: ID!): UserReport
+}
+
+type Subscription {
+  _: String!
+  NotificationLog: NotificationLog
+  Message: Message
+  UserOnlineStatus: User
+  LiveStreamMessage: Message
+}
+
+type OverviewData {
+  id: String!
+  totalStaff: Int!
+  totalConversations: Int!
+  totalMessages: Int!
+  totalCandidates: Int!
+  activeCandidatesPercentage: Float!
+  popularAreas: [PopularAreaMonthly]
+  candidateCountsByLevel: CandidateLevels
+  unAnsweredMessageCountsMonthly: [Int]!
+}
+
+type CandidateLevels {
+  id: String!
+  postgradsMonthly: [Int]!
+  undergradsMonthly: [Int]!
+  othersMonthly: [Int]!
+}
+
+type OverviewImpressions {
+  id: String!
+  signupMonthlyCounts: [Int]!
+  conversationMonthlyCounts: [Int]!
+  messageMonthlyCounts: [Int]!
+}
+
+type PopularAreaMonthly {
+  id: String
+  area: AreaOfStudy
+  monthlyCounts: [Int]
+}
+
+type AnalyticsData {
+  id: String!
+  visitorsDayByDay: [AnalyticsVisitor]!
+  visitorMonthlyCounts: [Int]!
+  visitorCountryCounts: [AnalyticsVisitor]!
+}
+
+type AnalyticsVisitor {
+  id: String!
+  countryCode: String
+  date: String
+  count: Int
+}
+
+input OverviewDataFilter {
+  universityId: ID
+}
+
+type LoginResponse {
+  token: String!
+  user: User!
+}
+
+input NewPersonnelInput {
+  email: String!
+  userRole: String!
+}
+
+input InputUserPrivacyAgreements {
+  telephone: Boolean!
+  email: Boolean!
+  sms: Boolean!
+}
+
+type UserPrivacyAgreements {
+  telephone: Boolean
+  email: Boolean
+  sms: Boolean
+}
+
+type UserAddedPassword {
+  user: User
+  hasUserAddedPassword: Boolean
+}
+
+type Blog {
+  id: String!
+  title: String!
+  owner: User
+  content: String!
+  image: String
+  createdAt: String
+  updatedAt: String
+}
+
+type PaginatedBlog {
+  blogs: [Blog]
+  count: Int
+}
+
+input BlogFilter {
+  byUniversity: ID
+}
+
+input BlogPagination {
+  limit: Int
+  skip: Int
+}
+
+input TranslatableInput {
+  en: String
+  tr: String
+}
+
+type TranslatableObject {
+  en: String
+  tr: String
+}
+
+type Country {
+  id: String!
+  name: String!
+  flag: String
+  mostSpokenLanguage: String
+}
+
+enum CountryOrLanguage {
+  COUNTRY
+  LANGUAGE
+}
+
+type NotificationLog {
+  id: String
+  title: String
+  body: String
+  user: User
+  createdAt: String
+  unread: Boolean
+  conversation: Conversation
+  iconType: String
+}
+
+input CountryFilter {
+  byUniversity: ID
+  userBadgeById: ID
+  userRole: UserRole
+  limit: Int
+  skip: Int
+  used: Boolean
+}
+
+input AreaOfStudyFilter {
+  byUniversity: ID
+  limit: Int
+  skip: Int
+  search: String
+  userBadgeById: ID
+  userRole: UserRole
+}
+
+input NotificationFilter {
+  limit: Int
+  skip: Int
+}
+
+type University {
+  id: String!
+  name: String!
+  paymentPlan: String
+  createdAt: String
+  primaryColor: String
+  secondaryColor: String
+  displayMode: String
+  webRTCType: String
+  userBadges: [UserBadge]
+  userBadgeCount: Int
+  agreementUrls: UniAgreementUrls
+  logo: String
+  isP2PVideoEnabled: Boolean
+}
+
+type PaginatedUniversity {
+  count: Int
+  universities: [University]
+}
+
+enum UniversityDisplayMode {
+  Primary
+  Secondary
+}
+
+enum WebRTCType {
+  WebRTC
+  Agora
+}
+
+input InputUniAgreementUrls {
+  explicitConsent: String!
+  enlightenment: String!
+}
+
+type UniAgreementUrls {
+  explicitConsent: String
+  enlightenment: String
+}
+
+input UniversityFilter {
+  search: String
+}
+
+input UniversityListPagination {
+  limit: Int
+  skip: Int
+}
+
+type Conversation {
+  id: String!
+  createdAt: String!
+  updatedAt: String!
+  users: [User!]
+  messages(filter: MessageFilter!): [Message]
+  university: University!
+}
+
+type PaginatedConversation {
+  conversations: [Conversation!]
+  count: Int
+}
+
+enum Message_Type {
+  Default
+  VideoStatus
+}
+
+type Message {
+  id: ID!
+  createdAt: String!
+  message: String!
+  sender: User
+  conversation: Conversation!
+  unread: [User!]
+  unreadCount: Int
+  target: User
+  type: Message_Type
+}
+
+enum MessageOrderBy {
+  createdAt_ASC
+  createdAt_DESC
+}
+
+input MessageFilter {
+  limit: Int
+  skip: Int
+  orderBy: MessageOrderBy
+}
+
+input ConversationFilter {
+  byUniversity: ID
+  byUserId: ID
+  userRole: UserRole
+  limit: Int
+  skip: Int
+  search: String
+}
+
+enum ApprovalStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+enum STUDENT_LEVEL {
+  PostGraduate
+  UnderGraduate
+}
+
+enum UserStatus {
+  Active
+  Passive
+  Suspected
+  Banned
+}
+
+enum RegisterUserRole {
+  Staff
+  Student
+}
+
+enum UserRole {
+  User
+  Staff
+  Student
+  SuperUser
+  UniversityManager
+}
+
+type StaffRole {
+  id: ID!
+  name: String
+}
+
+type PaginatedUser {
+  count: Int
+  users: [User!]
+}
+
+type User {
+  id: String!
+  email: String
+  firstName: String
+  lastName: String
+  fullName: String
+  profilePhoto: String
+  agoraId: String
+  userRole: UserRole
+  about: String
+  currentYear: String
+  hobbies: [String]
+  clubs: [String]
+  schoolName: String
+  phoneNumber: String
+  speakingLanguages: [Country]
+  studentLevel: STUDENT_LEVEL
+  areaOfStudies: [AreaOfStudy]
+  staffRole: StaffRole
+  country: Country
+  privacyAgreements: UserPrivacyAgreements
+  createdAt: String
+  university: University
+  badges: [UserBadge]
+  isOnline: Boolean
+  isVerified: Boolean
+  lastOnline: String
+  approvalStatus: ApprovalStatus
+  unreadMessages: [Message]
+  conversedWith: [User]
+  conversationCount: Int
+  messageCount: Int
+  convCount: Int
+  incomingReportCount: Int
+  place: Int
+  fcmIds: [String]
+  recentConversationCount: [Int]
+  recentMessageCount: [Int]
+  attendedEvents: [Event]
+  isP2PVideoEnabled: Boolean
+  reports: [UserReport]
+  incomingReports: [UserReport]
+  status: UserStatus
+}
+
+input StaffRoleFilter {
+  byUniversity: ID
+  userBadgeById: ID
+  limit: Int
+  skip: Int
+}
+
+input UserFilter {
+  userRole: [UserRole]
+  userBadgeById: ID
+  areaOfStudyIds: [ID]
+  countryIds: [ID]
+  studentLevels: [STUDENT_LEVEL]
+  staffRoleIds: [ID]
+  approvalStatus: ApprovalStatus
+  limit: Int
+  skip: Int
+}
+
+enum StaffListOrderBy {
+  MESSAGE_COUNT_ASC
+  MESSAGE_COUNT_DESC
+  CONVERSATION_COUNT_ASC
+  CONVERSATION_COUNT_DESC
+}
+
+enum StudentListOrderBy {
+  MESSAGE_COUNT_ASC
+  MESSAGE_COUNT_DESC
+  CONVERSATION_COUNT_ASC
+  CONVERSATION_COUNT_DESC
+}
+
+enum CandidateListOrderBy {
+  MESSAGE_COUNT_ASC
+  MESSAGE_COUNT_DESC
+  CONVERSATION_COUNT_ASC
+  CONVERSATION_COUNT_DESC
+}
+
+input UserPlaceObject {
+  id: ID!
+  place: Int
+}
+
+input ListPagination {
+  limit: Int
+  skip: Int
+}
+
+input StaffListFilter {
+  search: String
+  messageCount: Int
+  conversationCount: Int
+  orderBy: StaffListOrderBy
+  areaOfStudyIds: [ID]
+  userBadgeIds: [ID]
+}
+
+input StudentListFilter {
+  search: String
+  messageCount: Int
+  conversationCount: Int
+  orderBy: StudentListOrderBy
+  areaOfStudyIds: [ID]
+  userBadgeIds: [ID]
+}
+
+input CandidateListFilter {
+  search: String
+  messageCount: Int
+  conversationCount: Int
+  studentLevel: STUDENT_LEVEL
+  countryIds: [ID]
+  orderBy: CandidateListOrderBy
+}
+
+input ManagerListFilter {
+  search: String
+}
+
+type AreaOfStudy {
+  id: String!
+  name: String
+  candidateCount: Int
+  staffCount: Int
+  studentCount: Int
+  universities: [University]
+  users: [User]
+}
+
+type PaginatedAreaOfStudy {
+  count: Int
+  areaOfStudies: [AreaOfStudy]
+}
+
+type AreaOfStudyEditObject {
+  name: TranslatableObject
+  universities: [University]
+}
+
+input AreaOfStudyListPagination {
+  limit: Int
+  skip: Int
+}
+
+type UserBadge {
+  id: ID!
+  name: String
+  isDefault: Boolean
+  users: [User]
+  university: University
+}
+
+enum UniversityPaymentPlan {
+  Default
+  Premium
+}
+
+enum StaffOrStudent {
+  staff
+  students
+}
+
+type Event {
+  id: ID!
+  name: String
+  description: String
+  image: String
+  status: EventStatus
+  startDate: String
+  endDate: String
+  host: User
+  attendees: [User]
+  isAttending: Boolean
+  liveStreamConversation: Conversation
+}
+
+enum EventStatus {
+  Pending
+  Live
+  Completed
+  Cancelled
+}
+
+input EventFilter {
+  search: String
+  status: [EventStatus]
+  hostId: ID
+}
+
+type PaginatedEvent {
+  count: Int
+  events: [Event]
+}
+
+type UserReport {
+  id: ID!
+  reportMessage: String
+  user: User
+  reportedUser: User
+  university: University
+}

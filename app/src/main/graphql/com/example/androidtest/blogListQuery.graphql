@@ -1,0 +1,427 @@
+query blogListQuery {
+    blogList {
+        blogs {
+            id
+            title
+        }
+   }
+}
+
+mutation login($email: String!, $password: String!) {
+    authenticate(email: $email, password: $password) {
+        token
+        user {
+            id
+            email
+            firstName
+            lastName
+            fullName
+            userRole
+            about
+            currentYear
+            hobbies
+            clubs
+            schoolName
+            phoneNumber
+            speakingLanguages {
+                id
+                flag
+                name
+                mostSpokenLanguage
+            }
+            studentLevel
+            areaOfStudies {
+                id
+                name
+
+            }
+            staffRole {
+                id
+                name
+            }
+            country {
+                id
+                name
+                flag
+            }
+            createdAt
+            university{
+                id
+                name
+                paymentPlan
+                createdAt
+                primaryColor
+            }
+            badges{
+                id
+                name
+                isDefault
+                university {
+                    id
+                    name
+                }
+                users{
+                    id
+                    email
+                    firstName
+                    lastName
+                    fullName
+                }
+            }
+            isOnline
+            isVerified
+            lastOnline
+            approvalStatus
+            unreadMessages{
+                id
+                createdAt
+                message
+                sender {
+                    id
+                    email
+                    firstName
+                    lastName
+                    fullName
+
+                }
+            }
+            conversedWith{
+                id
+                firstName
+                lastName
+            }
+            conversationCount
+            messageCount
+            convCount
+            incomingReportCount
+            place
+            fcmIds
+            recentConversationCount
+            recentMessageCount
+            attendedEvents{
+              id
+              name
+              description
+              image
+              status
+              startDate
+              endDate
+              host{
+                id
+                firstName
+                lastName
+               }
+              attendees{
+                id
+                firstName
+                lastName
+              }
+              isAttending
+              liveStreamConversation{
+                id
+                createdAt
+                updatedAt
+              }
+            }
+            isP2PVideoEnabled
+            reports{
+               id
+               reportMessage
+               user{
+                    id
+                    firstName
+                    lastName
+               }
+               reportedUser{
+                   id
+                   firstName
+                   lastName
+               }
+               university{
+                   id
+                   name
+               }
+            }
+            incomingReports {
+                id
+                reportMessage
+                user{
+                    id
+                    firstName
+                    lastName
+                }
+                reportedUser{
+                    id
+                    firstName
+                    lastName
+                }
+                university{
+                    id
+                    name
+                }
+            }
+            status
+        }
+    }
+}
+
+query AllConversations($userId: ID!, $limit: Int!){
+    allConversations(filter: {byUserId: $userId}) {
+        count
+        conversations {
+            id
+            createdAt
+            updatedAt
+            users{
+                id
+                email
+                firstName
+                lastName
+            }
+            messages(filter: {limit: $limit}) {
+                id
+                createdAt
+                sender{
+                    id
+                    email
+                    firstName
+                    lastName
+                }
+                unreadCount
+                unread{
+                    id
+                    email
+                    firstName
+                    lastName
+                }
+                target{
+                    id
+                    email
+                    firstName
+                    lastName
+                }
+                type
+                message
+            }
+            university {
+                id
+                name
+            }
+        }
+    }
+
+}
+
+query getUser($userId: ID!){
+    getUser(id: $userId) {
+        id
+        email
+        firstName
+        lastName
+        userRole
+        staffRole{
+            id
+            name
+        }
+    }
+}
+
+query getConversation($id: ID!, $userId: ID!){
+    getConversation(id: $id, userId: $userId) {
+        id
+        createdAt
+        updatedAt
+        users {
+            id
+            email
+            firstName
+            lastName
+            userRole
+            staffRole{
+                id
+                name
+            }
+        }
+        messages (filter: {limit: 10}){
+
+            id
+            createdAt
+            message
+            sender {
+                id
+                email
+                firstName
+                lastName
+                userRole
+                staffRole{
+                    id
+                    name
+                }
+            }
+            conversation {
+                id
+                createdAt
+            }
+            unread {
+                id
+                email
+                firstName
+                lastName
+                userRole
+                staffRole{
+                    id
+                    name
+                }
+            }
+            target {
+                id
+                email
+                firstName
+                lastName
+                userRole
+                staffRole{
+                    id
+                    name
+                }
+            }
+            type
+        }
+    }
+}
+
+subscription UserOnlineStatus {
+    UserOnlineStatus{
+        id
+        email
+        firstName
+        lastName
+        fullName
+    }
+}
+
+subscription LiveStreamMessage {
+    LiveStreamMessage{
+        id
+        createdAt
+        message
+        sender {
+            id
+            firstName
+            lastName
+        }
+        conversation {
+            id
+            users {
+                id
+                firstName
+                lastName
+            }
+        }
+        unread {
+            id
+            firstName
+            lastName
+        }
+        target {
+            id
+            firstName
+            lastName
+        }
+    }
+}
+
+subscription Message {
+    Message{
+        id
+        createdAt
+        message
+        sender {
+            id
+            firstName
+            lastName
+        }
+        conversation {
+            id
+            users {
+                id
+                firstName
+                lastName
+            }
+        }
+        unread {
+            id
+            firstName
+            lastName
+        }
+        unreadCount
+        target {
+            id
+            firstName
+            lastName
+        }
+        type
+    }
+}
+
+mutation CreateConversation($userIds :[ID!]!) {
+    createConversation(userIds: $userIds){
+    id
+        createdAt
+        updatedAt
+        users{
+            id
+            firstName
+            lastName
+        }
+        messages(filter: {limit: 20}) {
+            id
+            createdAt
+            message
+            sender {
+                id
+                firstName
+                lastName
+            }
+            target {
+                id
+                firstName
+                lastName
+            }
+            unread {
+                id
+                firstName
+                lastName
+            }
+            conversation {
+                id
+                createdAt
+                updatedAt
+                users{
+                    id
+                    firstName
+                    lastName
+
+                }
+            }
+        }
+
+    }
+}
+mutation createMessage($conversationId: ID!, $message: String!) {
+    createMessage(conversationId: $conversationId, message: $message){
+        id
+        createdAt
+        message
+        sender {
+            id
+            firstName
+            lastName
+        }
+        target {
+            id
+            firstName
+            lastName
+        }
+
+    }
+}
